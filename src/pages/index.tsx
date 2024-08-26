@@ -38,7 +38,7 @@ const randomItemGenerator = () => {
     .sort(() => Math.random() - 0.5);
 };
 
-export const getServerSideProps = async ( ) => ({
+export const getServerSideProps = async () => ({
   props: { initialItems: randomItemGenerator() },
 });
 
@@ -65,16 +65,24 @@ export default function Home({ initialItems }: HomeProps) {
     setGameActive(false);
   }, []);
 
-  const showAlert = useCallback((title:string, text:string, icon:SweetAlertOptions['icon'], callback:()=>void) => {
-    Swal.fire({
-      title,
-      text,
-      icon,
-      confirmButtonText: "بازی دوباره",
-      showCancelButton: true,
-      cancelButtonText: "متوجه شدم",
-    }).then(({ isConfirmed }) => isConfirmed && callback());
-  }, []);
+  const showAlert = useCallback(
+    (
+      title: string,
+      text: string,
+      icon: SweetAlertOptions["icon"],
+      callback: () => void
+    ) => {
+      Swal.fire({
+        title,
+        text,
+        icon,
+        confirmButtonText: "بازی دوباره",
+        showCancelButton: true,
+        cancelButtonText: "متوجه شدم",
+      }).then(({ isConfirmed }) => isConfirmed && callback());
+    },
+    []
+  );
 
   const checkGameOver = useCallback(() => {
     if (time <= 0) {
@@ -115,37 +123,76 @@ export default function Home({ initialItems }: HomeProps) {
     }
   }, [userIsWon, time, clickTimes, addRecord]);
 
-  const handleItemClick = useCallback(
-    (item: ItemType) => {
-      if (!isGameActive) setGameActive(true);
+  const handleMatchingPair = (item: ItemType) => {
+    setItems((prev) => {
+      const newItems = prev.map((prevItem) =>
+        prevItem.id === item.id ? { ...prevItem, isFlip: true } : prevItem
+      );
 
-      if (
-        tempItems.length === 1 &&
-        tempItems[0].id === item.id &&
-        tempItems[0].index !== item.index
-      ) {
-        setItems((prev) =>
-          prev.map((i) => (i.id === item.id ? { ...i, isFlip: true } : i))
-        );
-        setTempItems([]);
-        if (items.every((i) => i.isFlip || i.id === item.id)) {
-          setUserIsWon(true);
-          setGameActive(false);
+      if (newItems.every((x) => x.isFlip)) {
+        setUserIsWon(true);
+        setGameActive(false);
+        setTimeout(() => {
           showAlert(
-            "آفرین بهت باهوش!",
-            "تونستی همه کارت هارو درست حدس بزنی، نظرت چیه یه دست دیگه بازی کنیم؟",
+            " آفرین بهت باهوش !",
+            "تونستی همه کارت هارو درست حدس بزنی ، نظرت چیه یه دست دیگه بازی کنیم ؟",
             "success",
             resetGame
           );
-        }
-      } else {
-        setClickTimes((prev) => Math.max(prev - 1, 0));
-        if (tempItems.length < 2) {
-          setTempItems((prev) => (prev.length === 1 ? [] : [item]));
-        }
+          let timeSpent = GAME_TIME - time;
+          let movesLeft = GAME_MOVEMENT - clickTimes;
+
+          addRecord({
+            date: new Intl.DateTimeFormat("Fa-IR").format(Date.now()),
+            movesLeft,
+            timeSpent,
+            score: calculateScore(timeSpent, movesLeft),
+          });
+        }, 1000);
+      }
+
+      return newItems;
+    });
+    setTempItems([]);
+  };
+  const handleClickItem = useCallback(
+    (item: ItemType) => {
+      setGameActive(true);
+
+      const updatedClickTimes = Math.max(clickTimes - 1, 0);
+      setClickTimes(updatedClickTimes);
+
+      const isMatchingPair =
+        tempItems.length === 1 &&
+        tempItems[0].id === item.id &&
+        tempItems[0].index !== item.index;
+
+      const gameState = () => {
+        if (updatedClickTimes <= 0 && !userIsWon) return "NO_MOVES";
+        if (time === 0 && !userIsWon) return "TIME_OUT";
+        if (isMatchingPair) return "MATCHING_PAIR";
+        if (tempItems.length === 1) return "NO_MATCH";
+        return "FIRST_CLICK";
+      };
+
+      const state = gameState();
+      if (state === "NO_MOVES" || state === "TIME_OUT") {
+        showAlert(
+          ALERT_MESSAGES[state.toLowerCase()].title,
+          ALERT_MESSAGES[state.toLowerCase()].text,
+          ALERT_MESSAGES[state.toLowerCase()].icon,
+          tryAgain
+        );
+      } else if (state === "MATCHING_PAIR") {
+        handleMatchingPair(item);
+      } else if (state === "NO_MATCH") {
+        setTempItems([tempItems[0], item]);
+        setTimeout(() => setTempItems([]), 1000);
+      } else if (state === "FIRST_CLICK") {
+        setTempItems([item]);
       }
     },
-    [isGameActive, tempItems, items, showAlert, resetGame]
+    [clickTimes, time, userIsWon, tempItems, showAlert, resetGame]
   );
 
   useEffect(() => {
@@ -162,7 +209,7 @@ export default function Home({ initialItems }: HomeProps) {
         <div className="grid grid-cols-4 w-full h-fit gap-2">
           {items.map((item) => (
             <CardItem
-              onClick={handleItemClick}
+              onClick={handleClickItem}
               item={item}
               isActive={
                 tempItems.some(
