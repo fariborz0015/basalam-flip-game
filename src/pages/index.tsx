@@ -55,6 +55,8 @@ export default function Home({ initialItems }: HomeProps) {
   const [userIsWon, setUserIsWon] = useState(false);
   const { addRecord } = useRecordStore();
   const renderCount = useRef(0);
+  const matchSoundRef = useRef<HTMLAudioElement | null>(null);
+  const tapSoundRef = useRef<HTMLAudioElement | null>(null);
 
   const resetGame = useCallback(() => {
     setTempItems([]);
@@ -147,6 +149,9 @@ export default function Home({ initialItems }: HomeProps) {
   const handleClickItem = useCallback(
     (item: ItemType) => {
       if (tempItems.length == 2) return null;
+
+      if (tapSoundRef.current) tapSoundRef.current.currentTime = 0;
+      tapSoundRef.current?.play();
       setGameActive(true);
 
       const updatedClickTimes = Math.max(clickTimes - 1, 0);
@@ -185,10 +190,11 @@ export default function Home({ initialItems }: HomeProps) {
           break;
         case "MATCHING_PAIR":
           handleMatchingPair(item);
+          setTimeout(() => matchSoundRef.current?.play?.(), 1000);
           break;
         case "NO_MATCH":
           setTempItems([tempItems[0], item]);
-          setTimeout(() => setTempItems([]), 1000);
+          setTimeout(() => setTempItems([]), 500);
           break;
         case "FIRST_CLICK":
           setTempItems([item]);
@@ -234,6 +240,10 @@ export default function Home({ initialItems }: HomeProps) {
       </div>
       <div className="flex-1 col-span-full max-w-lg mx-auto">
         <Records />
+      </div>
+      <div className="w-0 h-0 overflow-hidden opacity-0">
+        <audio src={"/assets/flip.wav"} autoPlay={false} ref={matchSoundRef} />
+        <audio src={"/assets/tap.wav"} autoPlay={false} ref={tapSoundRef} />
       </div>
     </main>
   );

@@ -24,7 +24,7 @@ const CardItem = React.memo(
     return (
       <div
         onClick={() => onClick?.(item)}
-        className="col-span-1 w-20 h-20 relative shadow-inner flex justify-center items-center"
+        className="col-span-1 w-20 h-20 relative shadow-inner flex justify-center items-center hover:scale-110 transition-all cursor-pointer "
         key={item.index}
       >
         <div
