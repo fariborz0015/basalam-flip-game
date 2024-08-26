@@ -1,15 +1,12 @@
 import CardItem from "@/components/CardItem";
 import HeaderInfo from "@/components/HeaderInfo";
-import { GetServerSideProps, GetServerSidePropsContext } from "next";
+import { GetServerSidePropsContext } from "next";
 import { Vazirmatn } from "next/font/google";
-import Image from "next/image";
 import {
-  useEffect,
-  useState,
   useCallback,
-  useMemo,
-  useLayoutEffect,
+  useEffect,
   useRef,
+  useState
 } from "react";
 import Swal from "sweetalert2";
 import "sweetalert2/src/sweetalert2.scss";
@@ -84,18 +81,14 @@ export default function Home({ initialItems }: HomeProps) {
     []
   );
 
-  const handleReset = useCallback(() => {
-    setTempItems([]);
-  }, []);
-
   const tryAgain = useCallback(() => {
-    handleReset();
+    setTempItems([]);
     setTime(120);
     setClickTimes(40);
     setItems(randomItemGenerator());
     setUserIsWon(false);
     setStarted(false);
-  }, [handleReset]);
+  }, []);
 
   useEffect(() => {
     if (time > 0 && !userIsWon && isStarted) {
@@ -134,9 +127,9 @@ export default function Home({ initialItems }: HomeProps) {
 
         return newItems;
       });
-      handleReset();
+      setTempItems([]);
     },
-    [setItems, setUserIsWon, setStarted, showAlert, tryAgain, handleReset]
+    [setItems, setUserIsWon, setStarted, showAlert, tryAgain]
   );
 
   const handleClickItem = useCallback(
@@ -204,7 +197,7 @@ export default function Home({ initialItems }: HomeProps) {
           console.log("s");
           setTempItems([tempItems[0], item]);
           console.log([tempItems[0], item]);
-          setTimeout(() => handleReset(), 1000);
+          setTimeout(() => setTempItems([]), 1000);
           break;
 
         case "FIRST_CLICK":
@@ -223,7 +216,6 @@ export default function Home({ initialItems }: HomeProps) {
       tempItems,
       showAlert,
       tryAgain,
-      handleReset,
       handleMatchingPair,
     ]
   );
