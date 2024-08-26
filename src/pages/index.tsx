@@ -87,15 +87,15 @@ export default function Home({ initialItems }: HomeProps) {
   const checkGameOver = useCallback(() => {
     if (time <= 0) {
       showAlert(
-        "باختی!",
-        "قبل اینکه همه کارت هارو حدس بزنی زمانت تموم شد",
+        ALERT_MESSAGES.timeOut.title,
+        ALERT_MESSAGES.timeOut.text,
         "error",
         resetGame
       );
     } else if (clickTimes <= 0) {
       showAlert(
-        "باختی!",
-        "قبل اینکه همه کارت هارو حدس بزنی حرکت هات تموم شد",
+        ALERT_MESSAGES.noMoves.title,
+        ALERT_MESSAGES.noMoves.text,
         "error",
         resetGame
       );
@@ -146,7 +146,7 @@ export default function Home({ initialItems }: HomeProps) {
 
   const handleClickItem = useCallback(
     (item: ItemType) => {
-      if(tempItems.length==2) return null
+      if (tempItems.length == 2) return null;
       setGameActive(true);
 
       const updatedClickTimes = Math.max(clickTimes - 1, 0);
