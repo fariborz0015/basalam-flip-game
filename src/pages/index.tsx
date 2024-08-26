@@ -63,7 +63,6 @@ interface HomeProps {
 export default function Home({ initialItems }: HomeProps) {
   const [time, setTime] = useState(120);
   const [clickTimes, setClickTimes] = useState(40);
-  const [isPending, setIsPending] = useState(false);
   const [items, setItems] = useState<ItemType[]>(initialItems);
   const [tempItems, setTempItems] = useState<ItemType[]>([]);
   const [userIsWon, setUserIsWon] = useState<boolean>(false);
@@ -87,7 +86,6 @@ export default function Home({ initialItems }: HomeProps) {
 
   const handleReset = useCallback(() => {
     setTempItems([]);
-    setIsPending(false);
   }, []);
 
   const tryAgain = useCallback(() => {
@@ -150,7 +148,6 @@ export default function Home({ initialItems }: HomeProps) {
 
       const gameState = {
         clickTimes: updatedClickTimes,
-        isPending,
         time,
         userIsWon,
         tempItemsLength: tempItems.length,
@@ -166,13 +163,14 @@ export default function Home({ initialItems }: HomeProps) {
         if (gameState.time === 0 && !gameState.userIsWon) return "TIME_OUT";
         if (
           gameState.clickTimes > 0 &&
-          !gameState.isPending &&
+          !(gameState.tempItemsLength > 1) &&
           gameState.time > 0 &&
           !gameState.userIsWon
         ) {
           if (gameState.tempItemsLength === 1) {
             return gameState.matchingPair ? "MATCHING_PAIR" : "NO_MATCH";
           } else {
+            console.log("first click");
             return "FIRST_CLICK";
           }
         }
@@ -203,8 +201,9 @@ export default function Home({ initialItems }: HomeProps) {
           break;
 
         case "NO_MATCH":
+          console.log("s");
           setTempItems([tempItems[0], item]);
-          setIsPending(true);
+          console.log([tempItems[0], item]);
           setTimeout(() => handleReset(), 1000);
           break;
 
@@ -219,7 +218,6 @@ export default function Home({ initialItems }: HomeProps) {
     },
     [
       clickTimes,
-      isPending,
       time,
       userIsWon,
       tempItems,
