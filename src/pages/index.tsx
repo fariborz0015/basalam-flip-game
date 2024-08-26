@@ -163,7 +163,7 @@ export default function Home({ initialItems }: HomeProps) {
           if (gameState.tempItemsLength === 1) {
             return gameState.matchingPair ? "MATCHING_PAIR" : "NO_MATCH";
           } else {
-            console.log("first click");
+        
             return "FIRST_CLICK";
           }
         }
@@ -194,9 +194,7 @@ export default function Home({ initialItems }: HomeProps) {
           break;
 
         case "NO_MATCH":
-          console.log("s");
           setTempItems([tempItems[0], item]);
-          console.log([tempItems[0], item]);
           setTimeout(() => setTempItems([]), 1000);
           break;
 
