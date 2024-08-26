@@ -1,18 +1,17 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import Swal from "sweetalert2";
 import CardItem from "@/components/CardItem";
+import { Vazirmatn } from "next/font/google";
 import HeaderInfo from "@/components/HeaderInfo";
 import { GetServerSidePropsContext } from "next";
-import { Vazirmatn } from "next/font/google";
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState
-} from "react";
-import Swal from "sweetalert2";
+
 import "sweetalert2/src/sweetalert2.scss";
 
 const vazirmatn = Vazirmatn({ subsets: ["arabic"] });
 
+const GAME_TIME=parseInt(process.env.NEXT_PUBLIC_GAME_TIME as string)
+const GAME_MOVEMENT=parseInt(process.env.NEXT_PUBLIC_GAME_MOVEMENT as string)
 export interface ItemType {
   id: number;
   isFlip: boolean;
@@ -58,8 +57,8 @@ interface HomeProps {
 }
 
 export default function Home({ initialItems }: HomeProps) {
-  const [time, setTime] = useState(120);
-  const [clickTimes, setClickTimes] = useState(40);
+  const [time, setTime] = useState(GAME_TIME);
+  const [clickTimes, setClickTimes] = useState(GAME_MOVEMENT);
   const [items, setItems] = useState<ItemType[]>(initialItems);
   const [tempItems, setTempItems] = useState<ItemType[]>([]);
   const [userIsWon, setUserIsWon] = useState<boolean>(false);
