@@ -18,6 +18,7 @@ export default function Home() {
   const [items, setItems] = useState<ItemType[]>([]);
   const [tempItems, setTempItems] = useState<ItemType[]>([]);
   const [userIsWon, setUserIsWon] = useState<boolean>(false);
+  const [isStarted,setStarted]=useState<boolean>(false)
 
   const generateRandomItems = useCallback(() => {
     const RandIds = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -98,15 +99,16 @@ export default function Home() {
     });
 
   useEffect(() => {
-    if (time > 0 && !userIsWon) {
+    if (time > 0 && !userIsWon && isStarted) {
       const timer = setTimeout(() => setTime(time - 1), 1000);
       return () => clearTimeout(timer);
     } else if (time <= 0) TimeEndAlert();
-  }, [time, userIsWon]);
+  }, [time, userIsWon,isStarted]);
 
   const handleReset = () => {
     setTempItems([]);
     setIsPending(false);
+ 
   };
 
   const tryAgain = () => {
@@ -116,9 +118,11 @@ export default function Home() {
     setClickTimes(40);
     generateRandomItems();
     setUserIsWon(false);
+    setStarted(false)
   };
 
   const clickHandler = (item: ItemType) => {
+    setStarted(true)
     if (clickTimes > 0 && !isPending && time > 0 && !userIsWon) {
       setClickTimes((prev) => Math.max(prev - 1, 0));
       if (tempItems.length === 1) {
@@ -133,6 +137,7 @@ export default function Home() {
               newItems.filter((x) => x.isFlip == true).length == items.length
             ) {
               setUserIsWon(true);
+              setStarted(false)
               setTimeout(() =>WonAlert(),1000)
             }
             return newItems;
