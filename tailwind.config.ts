@@ -8,6 +8,20 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      keyframes: {
+        flip: {
+          "0%": { transform: "rotateX(0)" },
+          "100%": { transform: "rotateX(180deg)" },
+        },
+        'flip-back': {
+          "0%": { transform: "rotateX(180deg)" },
+          "100%": { transform: "rotateX(0deg)" },
+        },
+      },
+      animation: {
+        flip: "flip 0.5s ease-in-out forwards",
+        'flip-back': "flip-back 0.5s ease-in-out forwards",
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
