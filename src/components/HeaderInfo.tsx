@@ -7,7 +7,7 @@ const HeaderInfo = ({clickTimes,time}:HeaderInfoProps) => {
   return (
     <div className="flex justify-between items-center w-full">
           <h2 className="text-lg font-bold">
-            تعداد حرکت: <span>{clickTimes}</span>
+            تعداد حدس: <span>{clickTimes}</span>
           </h2>
           <h2 className="text-lg font-bold">
             زمان:{" "}

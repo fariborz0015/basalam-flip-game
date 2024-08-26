@@ -44,7 +44,8 @@ const CardItem = ({ item, onClick, isActive = false }: CardItemProps) => {
           isActive ? "animate-flip" : "animate-flip-back"
         }`}
         style={{ backfaceVisibility: "hidden" }}
-      />
+      >{item.id}</div>
+
     </div>
   );
 };

@@ -7,11 +7,13 @@ import HeaderInfo from "@/components/HeaderInfo";
 import { GetServerSidePropsContext } from "next";
 
 import "sweetalert2/src/sweetalert2.scss";
+import Records from "@/components/Records";
+import { GAME_MOVEMENT, GAME_TIME } from "@/constants";
+import useRecordStore from "@/hooks/useRecordStore";
+import calculateScore from "@/utils/calculateScore ";
 
 const vazirmatn = Vazirmatn({ subsets: ["arabic"] });
 
-const GAME_TIME=parseInt(process.env.NEXT_PUBLIC_GAME_TIME as string)
-const GAME_MOVEMENT=parseInt(process.env.NEXT_PUBLIC_GAME_MOVEMENT as string)
 export interface ItemType {
   id: number;
   isFlip: boolean;
@@ -63,7 +65,7 @@ export default function Home({ initialItems }: HomeProps) {
   const [tempItems, setTempItems] = useState<ItemType[]>([]);
   const [userIsWon, setUserIsWon] = useState<boolean>(false);
   const [isStarted, setStarted] = useState<boolean>(false);
-
+  const { addRecord } = useRecordStore();
   const showAlert = useCallback(
     (title: string, text: string, icon: any, callback: () => void) => {
       Swal.fire({
@@ -102,34 +104,43 @@ export default function Home({ initialItems }: HomeProps) {
       );
   }, [time, userIsWon, isStarted, showAlert, tryAgain]);
 
-  const handleMatchingPair = useCallback(
-    (item: ItemType) => {
-      setItems((prev) => {
-        const newItems = prev.map((prevItem) =>
-          prevItem.id === item.id ? { ...prevItem, isFlip: true } : prevItem
-        );
+  useEffect(() => {
+    if (userIsWon) {
+      let timeSpent = GAME_TIME - time;
+      let movesLeft = GAME_MOVEMENT - clickTimes;
 
-        if (newItems.every((x) => x.isFlip)) {
-          setUserIsWon(true);
-          setStarted(false);
-          setTimeout(
-            () =>
-              showAlert(
-                " آفرین بهت باهوش !",
-                "تونستی همه کارت هارو درست حدس بزنی ، نظرت چیه یه دست دیگه بازی کنیم ؟",
-                "success",
-                tryAgain
-              ),
-            1000
-          );
-        }
-
-        return newItems;
+      addRecord({
+        date: new Intl.DateTimeFormat("Fa-IR").format(Date.now()),
+        movesLeft,
+        timeSpent,
+        score: calculateScore(timeSpent, movesLeft),
       });
-      setTempItems([]);
-    },
-    [setItems, setUserIsWon, setStarted, showAlert, tryAgain]
-  );
+    }
+  }, [userIsWon]);
+
+  const handleMatchingPair = (item: ItemType) => {
+    setItems((prev) => {
+      const newItems = prev.map((prevItem) =>
+        prevItem.id === item.id ? { ...prevItem, isFlip: true } : prevItem
+      );
+
+      if (newItems.every((x) => x.isFlip)) {
+        setUserIsWon(true);
+        setStarted(false);
+        setTimeout(() => {
+          showAlert(
+            " آفرین بهت باهوش !",
+            "تونستی همه کارت هارو درست حدس بزنی ، نظرت چیه یه دست دیگه بازی کنیم ؟",
+            "success",
+            tryAgain
+          );
+        }, 1000);
+      }
+
+      return newItems;
+    });
+    setTempItems([]);
+  };
 
   const handleClickItem = useCallback(
     (item: ItemType) => {
@@ -162,7 +173,6 @@ export default function Home({ initialItems }: HomeProps) {
           if (gameState.tempItemsLength === 1) {
             return gameState.matchingPair ? "MATCHING_PAIR" : "NO_MATCH";
           } else {
-        
             return "FIRST_CLICK";
           }
         }
@@ -206,15 +216,7 @@ export default function Home({ initialItems }: HomeProps) {
           break;
       }
     },
-    [
-      clickTimes,
-      time,
-      userIsWon,
-      tempItems,
-      showAlert,
-      tryAgain,
-      handleMatchingPair,
-    ]
+    [clickTimes, time, userIsWon, tempItems, showAlert, tryAgain]
   );
 
   const renderCount = useRef(0);
@@ -225,11 +227,11 @@ export default function Home({ initialItems }: HomeProps) {
   });
   return (
     <main
-      className={`flex min-h-screen flex-col items-center justify-center p-24 ${vazirmatn.className}`}
+      className={`flex flex-col container mx-auto  min-h-screen gap-y-10   p-24 ${vazirmatn.className}`}
     >
-      <div className="max-w-md mx-auto space-y-6 flex flex-col items-end">
+      <div className="sm:col-span-8 col-span-12  max-w-md mx-auto space-y-6 flex flex-col items-end">
         <HeaderInfo clickTimes={clickTimes} time={time} />
-        <div className="grid grid-cols-4 w-full h-fit gap-2" >
+        <div className="grid grid-cols-4 w-full h-fit gap-2">
           {items.map((item) => {
             const isTemporary = tempItems.some(
               (tempItem) =>
@@ -254,6 +256,9 @@ export default function Home({ initialItems }: HomeProps) {
         >
           شروع دوباره
         </button>
+      </div>
+      <div className=" flex-1 col-span-full max-w-lg mx-auto">
+        <Records />
       </div>
     </main>
   );
