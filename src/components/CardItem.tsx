@@ -52,7 +52,6 @@ const CardItem = React.memo(
           }`}
           style={{ backfaceVisibility: "hidden" }}
         >
-          {item.id}
         </div>
       </div>
     );
