@@ -1,10 +1,21 @@
 import { GAME_TIME } from "@/constants";
 
+ 
+ 
 const calculateScore = (timeSpent: number, movesLeft: number) => {
-  const baseScore = 1000; // امتیاز پایه
-  const timeScore = Math.max(0, GAME_TIME - timeSpent); // امتیاز بر اساس تایم صرف شده
-  const moveScore = movesLeft * 10; // امتیاز بر اساس حرکت‌های باقی‌مانده
+  const baseScore = 1000;
+  const maxTimePenalty = 500;
 
-  return baseScore + timeScore + moveScore;
+  const timePenalty = Math.min(
+    maxTimePenalty,
+    (timeSpent / GAME_TIME) * maxTimePenalty
+  );
+
+  const movePenalty = movesLeft * 10;
+
+  const score = baseScore - timePenalty - movePenalty;
+
+  return Math.max(Math.floor(score), 0);
 };
+
 export default calculateScore;
