@@ -4,16 +4,16 @@ import { GAME_TIME } from "@/constants";
  
 const calculateScore = (timeSpent: number, movesLeft: number) => {
   const baseScore = 1000;
-  const maxTimePenalty = 500;
+  const maxTime = 500;
 
-  const timePenalty = Math.min(
-    maxTimePenalty,
-    (timeSpent / GAME_TIME) * maxTimePenalty
+  const time = Math.min(
+    maxTime,
+    (timeSpent / GAME_TIME) * maxTime
   );
 
-  const movePenalty = movesLeft * 10;
+  const move = movesLeft * 10;
 
-  const score = baseScore - timePenalty - movePenalty;
+  const score = baseScore - time - move;
 
   return Math.max(Math.floor(score), 0);
 };
