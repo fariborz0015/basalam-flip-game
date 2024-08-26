@@ -1,7 +1,7 @@
 import CardItem from "@/components/CardItem";
 import HeaderInfo from "@/components/HeaderInfo";
 import Records from "@/components/Records";
-import { GAME_MOVEMENT, GAME_TIME } from "@/constants";
+import { ALERT_MESSAGES, GAME_MOVEMENT, GAME_TIME } from "@/constants";
 import useRecordStore from "@/hooks/useRecordStore";
 import calculateScore from "@/utils/calculateScore ";
 import { Vazirmatn } from "next/font/google";
@@ -110,10 +110,29 @@ export default function Home({ initialItems }: HomeProps) {
     checkGameOver();
   }, [time, isGameActive, userIsWon, checkGameOver]);
 
-  useEffect(() => {
-    if (userIsWon) {
-      const timeSpent = GAME_TIME - time;
-      const movesLeft = GAME_MOVEMENT - clickTimes;
+  const handleMatchingPair = (item: ItemType) => {
+    let isWon = false;
+    const modifiedItems = items.map((prevItem) =>
+      prevItem.id === item.id ? { ...prevItem, isFlip: true } : prevItem
+    );
+    if (modifiedItems.every((x) => x.isFlip)) {
+      isWon = true;
+      setUserIsWon(true);
+      setGameActive(false);
+      setTimeout(() => {
+        showAlert(
+          ALERT_MESSAGES.win.title,
+          ALERT_MESSAGES.win.text,
+          "success",
+          resetGame
+        );
+      }, 1000);
+    }
+    setItems(modifiedItems);
+
+    if (isWon) {
+      let timeSpent = GAME_TIME - time;
+      let movesLeft = GAME_MOVEMENT - clickTimes;
       addRecord({
         date: new Intl.DateTimeFormat("Fa-IR").format(Date.now()),
         movesLeft,
@@ -121,38 +140,7 @@ export default function Home({ initialItems }: HomeProps) {
         score: calculateScore(timeSpent, movesLeft),
       });
     }
-  }, [userIsWon, time, clickTimes, addRecord]);
-
-  const handleMatchingPair = (item: ItemType) => {
-    setItems((prev) => {
-      const newItems = prev.map((prevItem) =>
-        prevItem.id === item.id ? { ...prevItem, isFlip: true } : prevItem
-      );
-
-      if (newItems.every((x) => x.isFlip)) {
-        setUserIsWon(true);
-        setGameActive(false);
-        setTimeout(() => {
-          showAlert(
-            " آفرین بهت باهوش !",
-            "تونستی همه کارت هارو درست حدس بزنی ، نظرت چیه یه دست دیگه بازی کنیم ؟",
-            "success",
-            resetGame
-          );
-          let timeSpent = GAME_TIME - time;
-          let movesLeft = GAME_MOVEMENT - clickTimes;
-
-          addRecord({
-            date: new Intl.DateTimeFormat("Fa-IR").format(Date.now()),
-            movesLeft,
-            timeSpent,
-            score: calculateScore(timeSpent, movesLeft),
-          });
-        }, 1000);
-      }
-
-      return newItems;
-    });
+    
     setTempItems([]);
   };
   const handleClickItem = useCallback(
@@ -177,12 +165,21 @@ export default function Home({ initialItems }: HomeProps) {
 
       const state = gameState();
       if (state === "NO_MOVES" || state === "TIME_OUT") {
-        showAlert(
-          ALERT_MESSAGES[state.toLowerCase()].title,
-          ALERT_MESSAGES[state.toLowerCase()].text,
-          ALERT_MESSAGES[state.toLowerCase()].icon,
-          tryAgain
-        );
+        if (state === "NO_MOVES") {
+          showAlert(
+            ALERT_MESSAGES.noMoves.title,
+            ALERT_MESSAGES.noMoves.text,
+            "error",
+            resetGame
+          );
+        } else {
+          showAlert(
+            ALERT_MESSAGES.timeOut.title,
+            ALERT_MESSAGES.timeOut.text,
+            "error",
+            resetGame
+          );
+        }
       } else if (state === "MATCHING_PAIR") {
         handleMatchingPair(item);
       } else if (state === "NO_MATCH") {
