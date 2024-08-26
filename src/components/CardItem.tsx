@@ -1,6 +1,6 @@
 import { ItemType } from "@/pages";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 interface CardItemProps {
   item: ItemType;
@@ -8,6 +8,16 @@ interface CardItemProps {
   isActive: boolean;
 }
 const CardItem = ({ item, onClick, isActive = false }: CardItemProps) => {
+  const [showImage, setShowImage] = useState<boolean>(isActive);
+
+  useEffect(() => {
+    if (isActive) {
+      setShowImage(true);
+    } else {
+      const timer = setTimeout(() => setShowImage(false), 1000); // 1 ثانیه تأخیر
+      return () => clearTimeout(timer); // پاک کردن تایمر در صورت تغییر isActive یا خروج از کامپوننت
+    }
+  }, [isActive]);
   return (
     <div
       onClick={() => onClick?.(item)}
@@ -19,15 +29,15 @@ const CardItem = ({ item, onClick, isActive = false }: CardItemProps) => {
           isActive ? "animate-flip" : "animate-flip-back"
         }`}
       >
-        {
+        {showImage && (
           <Image
             width={80}
             height={80}
             src={item.img}
             alt="chance"
-            className="text-lg border rounded-lg font-extrabold animate-flip"
+            className={`text-lg border rounded-lg font-extrabold  ${    isActive ? "animate-flip" : "animate-flip-back"}`}
           />
-        }
+        )}
       </div>
       <div
         className={`w-full h-full overflow-hidden rounded-lg absolute top-0 shadow-inner border bg-white bg-contain bg-[url('/logo.png')] left-0 ${

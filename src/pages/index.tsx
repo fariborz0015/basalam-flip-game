@@ -229,7 +229,7 @@ export default function Home({ initialItems }: HomeProps) {
     >
       <div className="max-w-md mx-auto space-y-6 flex flex-col items-end">
         <HeaderInfo clickTimes={clickTimes} time={time} />
-        <div className="grid grid-cols-4 w-full h-fit gap-2">
+        <div className="grid grid-cols-4 w-full h-fit gap-2" >
           {items.map((item) => {
             const isTemporary = tempItems.some(
               (tempItem) =>
