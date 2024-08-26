@@ -140,11 +140,13 @@ export default function Home({ initialItems }: HomeProps) {
         score: calculateScore(timeSpent, movesLeft),
       });
     }
-    
+
     setTempItems([]);
   };
+
   const handleClickItem = useCallback(
     (item: ItemType) => {
+      if(tempItems.length==2) return null
       setGameActive(true);
 
       const updatedClickTimes = Math.max(clickTimes - 1, 0);
@@ -164,29 +166,35 @@ export default function Home({ initialItems }: HomeProps) {
       };
 
       const state = gameState();
-      if (state === "NO_MOVES" || state === "TIME_OUT") {
-        if (state === "NO_MOVES") {
+      switch (state) {
+        case "NO_MOVES":
           showAlert(
             ALERT_MESSAGES.noMoves.title,
             ALERT_MESSAGES.noMoves.text,
             "error",
             resetGame
           );
-        } else {
+          break;
+        case "TIME_OUT":
           showAlert(
             ALERT_MESSAGES.timeOut.title,
             ALERT_MESSAGES.timeOut.text,
             "error",
             resetGame
           );
-        }
-      } else if (state === "MATCHING_PAIR") {
-        handleMatchingPair(item);
-      } else if (state === "NO_MATCH") {
-        setTempItems([tempItems[0], item]);
-        setTimeout(() => setTempItems([]), 1000);
-      } else if (state === "FIRST_CLICK") {
-        setTempItems([item]);
+          break;
+        case "MATCHING_PAIR":
+          handleMatchingPair(item);
+          break;
+        case "NO_MATCH":
+          setTempItems([tempItems[0], item]);
+          setTimeout(() => setTempItems([]), 1000);
+          break;
+        case "FIRST_CLICK":
+          setTempItems([item]);
+          break;
+        default:
+          break;
       }
     },
     [clickTimes, time, userIsWon, tempItems, showAlert, resetGame]
@@ -204,7 +212,7 @@ export default function Home({ initialItems }: HomeProps) {
       <div className="sm:col-span-8 col-span-12 max-w-md mx-auto space-y-6 flex flex-col items-end">
         <HeaderInfo clickTimes={clickTimes} time={time} />
         <div className="grid grid-cols-4 w-full h-fit gap-2">
-          {items.map((item) => (
+          {items.map((item, index) => (
             <CardItem
               onClick={handleClickItem}
               item={item}
@@ -213,7 +221,7 @@ export default function Home({ initialItems }: HomeProps) {
                   (temp) => temp.id === item.id && temp.index === item.index
                 ) || item.isFlip
               }
-              key={item.index}
+              key={index}
             />
           ))}
         </div>
