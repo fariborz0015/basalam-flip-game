@@ -108,7 +108,7 @@ export default function Home({ initialItems }: HomeProps) {
     if (userIsWon) {
       let timeSpent = GAME_TIME - time;
       let movesLeft = GAME_MOVEMENT - clickTimes;
-
+     
       addRecord({
         date: new Intl.DateTimeFormat("Fa-IR").format(Date.now()),
         movesLeft,

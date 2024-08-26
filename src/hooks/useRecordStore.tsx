@@ -32,7 +32,6 @@ const useRecordStore = create<RecordStore>((set) => ({
   },
 }));
 
-// Initialize the store with records from localStorage
-useRecordStore.getState().loadRecords();
+ 
 
 export default useRecordStore;

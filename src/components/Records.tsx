@@ -1,9 +1,11 @@
 import useRecordStore from "@/hooks/useRecordStore";
-import React from "react";
+import React, { useEffect } from "react";
 
 const Records = () => {
-  const { records } = useRecordStore();
-
+  const { records, loadRecords } = useRecordStore();
+  useEffect(() => {
+    loadRecords();
+  }, [loadRecords]);
   return (
     <div className="w-full ">
       <h2 className="bg-slate-200 p-4 rounded-t-md font-extrabold">
@@ -36,10 +38,12 @@ const Records = () => {
                     scope="row"
                     className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap  "
                   >
-                     {record.date}
+                    {record.date}
                   </th>
                   <td className="px-6 py-4">{record.movesLeft}</td>
-                  <td className="px-6 py-4">{record.timeSpent} <span>ثانیه</span></td>
+                  <td className="px-6 py-4">
+                    {record.timeSpent} <span>ثانیه</span>
+                  </td>
                   <td className="px-6 py-4">{record.score}</td>
                 </tr>
               ))}
